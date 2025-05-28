@@ -15,6 +15,7 @@ The bot currently supports the following blockchains and currencies:
 - **Avalanche (AVAX)**
 - **Optimism (OP)**
 - **Fantom (FTM)**
+- **Custom EVM Blockchain**
 
 ### Non-EVM Blockchains:
 - **Solana (SOL)**
@@ -28,16 +29,18 @@ The bot currently supports the following blockchains and currencies:
 - **Pi Network (PI)**
 - **Cosmos (ATOM)**
 - **Osmosis (OSMO)**
+- **Custom Web3 Blockchain**
 
 ### Supported Stablecoins:
 - **Tether (USDT)**
 - **USD Coin (USDC)**
 - **Dai (DAI)**
+- **Native Coin (All Blockchain) **
 
 ### Features
 - **Real-time transaction tracking**: The bot tracks all transactions in real-time for the supported blockchains and currencies.
-- **Wallet Address Support**: The bot allows users to track specific wallet addresses and their transaction history.
-- **Currency and Token Support**: Supports both native blockchain tokens (e.g., ETH, BNB) and stablecoins (e.g., USDT, USDC).
+- **Wallet Address Support**: The bot allows users to track specific multiple wallet addresses and their transaction history in a same time .
+- **Currency and Token Support**: Supports both native blockchain tokens (e.g., ETH, PI, BNB) and stablecoins (e.g., DAI, USDT, USDC).
 - **Transaction Notifications**: The bot sends notifications via Telegram with details about transactions, including amount, USD value, and a link to the blockchain explorer.
 - **Admin Controls**: The bot includes various admin commands to manage settings like tracking configurations, adding/removing wallets, updating rates, and more.
 
@@ -161,6 +164,7 @@ The bot supports the following blockchain types:
 - **Fantom**
 - **PulseChain**
 - **Base(Coinbase)**
+- **Custom EVM Blockchain*"
 
 ### Non-EVM Chains:
 - **Solana**
@@ -174,6 +178,7 @@ The bot supports the following blockchain types:
 - **Cosmos**
 - **Osmosis**
 - **Eos**
+- **Custom Web3 Blockchain**
 
 ### Tokens:
 - **USDT** (Tether)
