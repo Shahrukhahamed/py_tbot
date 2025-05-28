@@ -15,7 +15,7 @@ The bot currently supports the following blockchains and currencies:
 - **Avalanche (AVAX)**
 - **Optimism (OP)**
 - **Fantom (FTM)**
-- **Custom EVM Blockchain**
+- **Custom EVM Blockchain integration**
 
 ### Non-EVM Blockchains:
 - **Solana (SOL)**
@@ -29,13 +29,13 @@ The bot currently supports the following blockchains and currencies:
 - **Pi Network (PI)**
 - **Cosmos (ATOM)**
 - **Osmosis (OSMO)**
-- **Custom Web3 Blockchain**
+- **Custom Web3 Blockchain integration**
 
 ### Supported Stablecoins:
 - **Tether (USDT)**
 - **USD Coin (USDC)**
 - **Dai (DAI)**
-- **Native Coin (All Blockchain) **
+- **Native Coin (All Blockchain)**
 
 ### Features
 - **Real-time transaction tracking**: The bot tracks all transactions in real-time for the supported blockchains and currencies.
@@ -123,6 +123,7 @@ The bot supports the following admin commands to manage blockchain tracking and 
 - `/pause_tracking`: Pause transaction tracking.
 - `/resume_tracking`: Resume transaction tracking.
 - `/start_tracking`: Start tracking transactions for a specific blockchain.
+-  `/set_media` : set image ,animated video , gif etc .
 - `/stop_tracking`: Stop tracking transactions for a specific blockchain.
 - `/add_wallet`: Add a wallet address for a blockchain.
 - `/remove_wallet`: Remove a wallet address from tracking.
@@ -149,6 +150,7 @@ The bot supports the following admin commands to manage blockchain tracking and 
     - Amount of tokens/coins
     - USD value of the transaction (based on the latest rate)
     - A link to the transaction on the blockchain explorer
+    - A link of Decentralized exchanges. 
 
 ## Supported Blockchains and Currencies
 
@@ -164,7 +166,7 @@ The bot supports the following blockchain types:
 - **Fantom**
 - **PulseChain**
 - **Base(Coinbase)**
-- **Custom EVM Blockchain*"
+- **Custom EVM Blockchain integration**
 
 ### Non-EVM Chains:
 - **Solana**
@@ -178,12 +180,13 @@ The bot supports the following blockchain types:
 - **Cosmos**
 - **Osmosis**
 - **Eos**
-- **Custom Web3 Blockchain**
+- **Custom Web3 Blockchain integration**
 
 ### Tokens:
 - **USDT** (Tether)
 - **USDC** (USD Coin)
 - **DAI** (Dai)
+- **Native coin of each Blockchain**
 
 ## License
 
