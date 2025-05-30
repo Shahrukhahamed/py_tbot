@@ -129,5 +129,8 @@ class RedisCache:
         self.fallback_cache.clear_all()
 
 
+# Alias for compatibility
+CacheManager = RedisCache
+
 # Global cache instance
 cache = RedisCache()

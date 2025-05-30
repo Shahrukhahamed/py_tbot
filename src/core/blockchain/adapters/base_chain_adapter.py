@@ -1,15 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
+from .token_methods import TokenMethodsMixin
 
 
-class BaseChainAdapter(ABC):
-    """Base class for all blockchain adapters"""
+class BaseChainAdapter(ABC, TokenMethodsMixin):
+    """Base class for all blockchain adapters with token tracking support"""
     
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.rpc_url = config.get('rpc_url')
         self.native_token = config.get('native_token')
         self.tokens = config.get('tokens', {})
+        self.chain_name = config.get('name', 'unknown')
     
     @abstractmethod
     def get_current_block(self) -> int:

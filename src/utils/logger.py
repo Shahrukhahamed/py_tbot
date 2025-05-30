@@ -30,3 +30,9 @@ class BotLogger:
 
 # Instantiate the logger
 logger = BotLogger()
+
+def get_logger(name: str = None):
+    """Get logger instance for a specific module"""
+    if name:
+        return logging.getLogger(f'CryptoBot.{name}')
+    return logger.logger

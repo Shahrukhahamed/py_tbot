@@ -9,7 +9,9 @@ from telegram.ext import (
 )
 
 from src.interface.telegram.handlers import *
+from src.interface.telegram.token_handlers import TokenTrackingHandlers
 from src.infrastructure.database import SupabaseDB
+from src.infrastructure.cache import CacheManager
 from src.utils.logger import logger
 
 
@@ -20,6 +22,8 @@ class TelegramBot:
             raise EnvironmentError("TELEGRAM_TOKEN is not set in environment variables.")
 
         self.db = SupabaseDB()
+        self.cache = CacheManager()
+        self.token_handlers = TokenTrackingHandlers(self.cache)
         self.app = ApplicationBuilder().token(token).build()
         self._register_handlers()
 
@@ -59,6 +63,10 @@ class TelegramBot:
 
         for command, handler in command_handlers.items():
             self.app.add_handler(CommandHandler(command, handler))
+
+        # Add token tracking handlers
+        for handler in self.token_handlers.get_handlers():
+            self.app.add_handler(handler)
 
         # Handle when bot is added to a group
         self.app.add_handler(MessageHandler(

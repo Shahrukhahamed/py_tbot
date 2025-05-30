@@ -130,6 +130,26 @@ async def handle_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 /get_evm_template - Get EVM chain configuration template
 /get_web3_template [chain_type] - Get Web3 chain configuration template
 
+**🪙 Token Tracking & Integration:**
+/setup_tracking - Interactive token tracking setup
+/track_token <blockchain> <address> <mode> - Quick track token
+/untrack_token <blockchain> <address> - Stop tracking token
+/my_trackings - View your active trackings
+/tracking_stats - View tracking statistics
+
+**🔍 Token Management:**
+/add_token <blockchain> <address> [symbol] [name] - Add token to system
+/search_tokens <query> [blockchain] - Search for tokens
+/popular_tokens [blockchain] - View popular tokens
+/discover_tokens <blockchain> [limit] - Discover new tokens
+/token_info <blockchain> <address> - Get token details
+/supported_chains - List supported blockchains
+
+**Tracking Modes:**
+- buy_only: Track only buy transactions
+- sell_only: Track only sell transactions  
+- both: Track both buy and sell transactions
+
 **System Configuration:**
 /set_message_format <template>
 /clear_cache
