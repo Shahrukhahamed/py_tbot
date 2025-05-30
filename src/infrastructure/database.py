@@ -59,12 +59,28 @@ class SupabaseDB:
         try:
             if operation == 'insert' and data:
                 result = self.client.table(table).insert(data).execute()
+            elif operation == 'upsert' and data:
+                result = self.client.table(table).upsert(data).execute()
             elif operation == 'select':
-                result = self.client.table(table).select("*").execute()
+                if data and 'key' in data:
+                    result = self.client.table(table).select("*").eq('key', data['key']).execute()
+                else:
+                    result = self.client.table(table).select("*").execute()
             elif operation == 'update' and data:
                 result = self.client.table(table).update(data).execute()
             elif operation == 'delete' and data:
-                result = self.client.table(table).delete().eq('id', data['id']).execute()
+                # Handle different delete scenarios
+                if 'address' in data:
+                    result = self.client.table(table).delete().eq('address', data['address']).execute()
+                elif 'name' in data:
+                    result = self.client.table(table).delete().eq('name', data['name']).execute()
+                elif 'ticker' in data:
+                    result = self.client.table(table).delete().eq('ticker', data['ticker']).execute()
+                elif 'id' in data:
+                    result = self.client.table(table).delete().eq('id', data['id']).execute()
+                else:
+                    logger.log(f"No valid identifier found for delete operation: {data}")
+                    return None
             else:
                 logger.log(f"Invalid operation or missing data: {operation}")
                 return None

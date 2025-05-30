@@ -1,30 +1,60 @@
 from web3 import Web3
-from config.settings import settings
+from typing import List, Dict, Any
+from .base_chain_adapter import BaseChainAdapter
+from src.utils.logger import logger
 
-# Define the token contract addresses for Polygon
-USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955"  # Polygon USDT contract
-USDC_CONTRACT = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"  # Polygon USDC contract
-DAI_CONTRACT = "0x8f3Cf7ad23Cd3FaF09D6F2F8b01f65eDfA3e11D9"  # Polygon DAI contract
 
-class PolygonAdapter:
-    def __init__(self):
-        self.w3 = Web3(Web3.HTTPProvider(settings.BLOCKCHAINS['Polygon']['rpc']))
+class PolygonAdapter(BaseChainAdapter):
+    """Polygon blockchain adapter"""
     
-    def get_transactions(self, start_block, end_block):
-        block_range = self.w3.eth.get_block_range(start_block, end_block)
-        return [{
-            'hash': tx['hash'].hex(),
-            'to': tx['to'],
-            'value': self.w3.from_wei(tx['value'], 'ether'),
-            'currency': self._detect_token_currency(tx),
-            'block': tx['blockNumber']
-        } for tx in block_range.transactions]
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        try:
+            self.w3 = Web3(Web3.HTTPProvider(self.rpc_url))
+            if not self.w3.is_connected():
+                raise ConnectionError(f"Failed to connect to Polygon RPC: {self.rpc_url}")
+        except Exception as e:
+            logger.log(f"Error initializing Polygon adapter: {e}")
+            raise
     
-    def _detect_token_currency(self, tx):
-        if tx['to'].lower() == USDT_CONTRACT.lower():
-            return 'USDT'
-        elif tx['to'].lower() == USDC_CONTRACT.lower():
-            return 'USDC'
-        elif tx['to'].lower() == DAI_CONTRACT.lower():
-            return 'DAI'
-        return 'MATIC'  # Default is MATIC
+    def get_current_block(self) -> int:
+        try:
+            return self.w3.eth.block_number
+        except Exception as e:
+            logger.log(f"Error getting current block: {e}")
+            return 0
+    
+    def get_transactions(self, start_block: int, end_block: int) -> List[Dict[str, Any]]:
+        transactions = []
+        try:
+            for block_num in range(start_block, end_block + 1):
+                block = self.w3.eth.get_block(block_num, full_transactions=True)
+                for tx in block.transactions:
+                    formatted_tx = self._format_ethereum_transaction(tx)
+                    transactions.append(formatted_tx)
+        except Exception as e:
+            logger.log(f"Error getting transactions: {e}")
+        return transactions
+    
+    def get_transaction_details(self, tx_hash: str) -> Dict[str, Any]:
+        try:
+            tx = self.w3.eth.get_transaction(tx_hash)
+            return self._format_ethereum_transaction(tx)
+        except Exception as e:
+            logger.log(f"Error getting transaction details: {e}")
+            return {}
+    
+    def _format_ethereum_transaction(self, tx) -> Dict[str, Any]:
+        try:
+            return {
+                'hash': tx['hash'].hex() if hasattr(tx['hash'], 'hex') else str(tx['hash']),
+                'to': tx.get('to', ''),
+                'from': tx.get('from', ''),
+                'value': float(self.w3.from_wei(tx.get('value', 0), 'ether')),
+                'currency': self._detect_token_currency(tx),
+                'block': tx.get('blockNumber', 0),
+                'timestamp': 0
+            }
+        except Exception as e:
+            logger.log(f"Error formatting transaction: {e}")
+            return {}

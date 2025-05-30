@@ -1,30 +1,44 @@
-from eosjs import eos
-from config.settings import settings
+from typing import List, Dict, Any
+from .base_chain_adapter import BaseChainAdapter
+from src.utils.logger import logger
 
-# Define token contract addresses for EOS (if available)
-USDT_CONTRACT = "EOS... (USDT contract address)"
-USDC_CONTRACT = "EOS... (USDC contract address)"
-DAI_CONTRACT = "EOS... (DAI contract address)"
 
-class EOSAdapter:
-    def __init__(self):
-        self.eos = eos.connect(settings.BLOCKCHAINS['EOS']['rpc'])
+class EOSAdapter(BaseChainAdapter):
+    """EOS blockchain adapter"""
     
-    def get_transactions(self, start_block, end_block):
-        block_range = self.eos.get_block_range(start_block, end_block)
-        return [{
-            'hash': tx['transaction_id'],
-            'to': tx['to'],
-            'value': tx['amount'],
-            'currency': self._detect_token_currency(tx),
-            'block': tx['block_num']
-        } for tx in block_range]
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        try:
+            # EOS client initialization would go here
+            pass
+        except Exception as e:
+            logger.log(f"Error initializing EOS adapter: {e}")
+            raise
     
-    def _detect_token_currency(self, tx):
-        if tx['to'] == USDT_CONTRACT:
-            return 'USDT'
-        elif tx['to'] == USDC_CONTRACT:
-            return 'USDC'
-        elif tx['to'] == DAI_CONTRACT:
-            return 'DAI'
-        return 'EOS'  # Default is EOS (EOS native token)
+    def get_current_block(self) -> int:
+        """Get the current block number"""
+        try:
+            # EOS specific implementation
+            return 0  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting current block: {e}")
+            return 0
+    
+    def get_transactions(self, start_block: int, end_block: int) -> List[Dict[str, Any]]:
+        """Get transactions between block range"""
+        transactions = []
+        try:
+            # EOS transaction fetching logic would go here
+            pass
+        except Exception as e:
+            logger.log(f"Error getting transactions: {e}")
+        return transactions
+    
+    def get_transaction_details(self, tx_hash: str) -> Dict[str, Any]:
+        """Get detailed transaction information"""
+        try:
+            # EOS transaction details logic
+            return {}  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting transaction details: {e}")
+            return {}

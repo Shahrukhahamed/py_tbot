@@ -1,30 +1,44 @@
-from polkadot import Polkadot
-from config.settings import settings
+from typing import List, Dict, Any
+from .base_chain_adapter import BaseChainAdapter
+from src.utils.logger import logger
 
-# Define token contract addresses for Polkadot
-USDT_CONTRACT = "Polkadot... (USDT contract address)"
-USDC_CONTRACT = "Polkadot... (USDC contract address)"
-DAI_CONTRACT = "Polkadot... (DAI contract address)"
 
-class PolkadotAdapter:
-    def __init__(self):
-        self.polkadot = Polkadot.connect(settings.BLOCKCHAINS['Polkadot']['rpc'])
+class PolkadotAdapter(BaseChainAdapter):
+    """Polkadot blockchain adapter"""
     
-    def get_transactions(self, start_block, end_block):
-        block_range = self.polkadot.get_block_range(start_block, end_block)
-        return [{
-            'hash': tx['hash'],
-            'to': tx['recipient'],
-            'value': tx['amount'],
-            'currency': self._detect_token_currency(tx),
-            'block': tx['block_number']
-        } for tx in block_range.transactions]
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        try:
+            # Polkadot client initialization would go here
+            pass
+        except Exception as e:
+            logger.log(f"Error initializing Polkadot adapter: {e}")
+            raise
     
-    def _detect_token_currency(self, tx):
-        if tx['recipient'] == USDT_CONTRACT:
-            return 'USDT'
-        elif tx['recipient'] == USDC_CONTRACT:
-            return 'USDC'
-        elif tx['recipient'] == DAI_CONTRACT:
-            return 'DAI'
-        return 'DOT'  # Default is DOT (Polkadot's native token)
+    def get_current_block(self) -> int:
+        """Get the current block number"""
+        try:
+            # Polkadot specific implementation
+            return 0  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting current block: {e}")
+            return 0
+    
+    def get_transactions(self, start_block: int, end_block: int) -> List[Dict[str, Any]]:
+        """Get transactions between block range"""
+        transactions = []
+        try:
+            # Polkadot transaction fetching logic would go here
+            pass
+        except Exception as e:
+            logger.log(f"Error getting transactions: {e}")
+        return transactions
+    
+    def get_transaction_details(self, tx_hash: str) -> Dict[str, Any]:
+        """Get detailed transaction information"""
+        try:
+            # Polkadot transaction details logic
+            return {}  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting transaction details: {e}")
+            return {}

@@ -11,6 +11,7 @@ class Settings:
         self.SUPABASE_URL = self._get_env("SUPABASE_URL")
         self.SUPABASE_KEY = self._get_env("SUPABASE_KEY")
         self.TELEGRAM_TOKEN = self._get_env("TELEGRAM_TOKEN")
+        self.REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
         self.BLOCKCHAINS = self._load_blockchains_config()
 

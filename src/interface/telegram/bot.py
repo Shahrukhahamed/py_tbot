@@ -46,6 +46,7 @@ class TelegramBot:
             'set_admin_id': handle_set_admin_id,
             'set_rpc_url': handle_set_rpc_url,
             'fallback_rpc': handle_fallback_rpc,
+            'set_media': handle_set_media,
         }
 
         for command, handler in command_handlers.items():

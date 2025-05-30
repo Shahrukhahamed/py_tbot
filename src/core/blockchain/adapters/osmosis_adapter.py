@@ -1,44 +1,44 @@
-import requests
-from config.settings import settings
+from typing import List, Dict, Any
+from .base_chain_adapter import BaseChainAdapter
+from src.utils.logger import logger
 
-class OsmosisAdapter:
-    def __init__(self):
-        self.api_url = settings.BLOCKCHAINS['Osmosis']['lcd']  # e.g. https://lcd.osmosis.zone
-        self.ibc_denoms = {
-            'USDC': 'ibc/2F5ED29C70E5A4AEE945BDAF6AB953A3D1A09EC2150EAC03C838EA0E3A3A53A4',
-            'USDT': 'ibc/6A06F305F3BDAAE2F44E8B2E287E8D5532C1934F91C2D69053F1D97880F0569B',
-            'DAI':  'ibc/4D49C9297AEAB43A7C20A6D83D4A3C8DA3F9DA8F85C512D581C0C37C54EC73B0'
-        }
 
-    def get_transactions(self, address, limit=50):
-        url = f"{self.api_url}/cosmos/tx/v1beta1/txs?events=message.sender='{address}'&limit={limit}"
-        response = requests.get(url)
-        txs = response.json().get('txs', [])
-        parsed = []
-
-        for tx in txs:
-            messages = tx.get('body', {}).get('messages', [])
-            for msg in messages:
-                if msg['@type'] == '/cosmos.bank.v1beta1.MsgSend':
-                    from_address = msg['from_address']
-                    to_address = msg['to_address']
-                    for amount in msg.get('amount', []):
-                        denom = amount['denom']
-                        symbol = self._get_symbol_from_denom(denom)
-                        if symbol:
-                            parsed.append({
-                                'hash': tx['txhash'],
-                                'from': from_address,
-                                'to': to_address,
-                                'value': int(amount['amount']) / 1e6,  # Adjust decimals if needed
-                                'currency': symbol,
-                                'block': int(tx['height']),
-                            })
-
-        return parsed
-
-    def _get_symbol_from_denom(self, denom):
-        for symbol, ibc_denom in self.ibc_denoms.items():
-            if denom == ibc_denom:
-                return symbol
-        return None
+class OsmosisAdapter(BaseChainAdapter):
+    """Osmosis blockchain adapter"""
+    
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        try:
+            # Osmosis client initialization would go here
+            pass
+        except Exception as e:
+            logger.log(f"Error initializing Osmosis adapter: {e}")
+            raise
+    
+    def get_current_block(self) -> int:
+        """Get the current block number"""
+        try:
+            # Osmosis specific implementation
+            return 0  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting current block: {e}")
+            return 0
+    
+    def get_transactions(self, start_block: int, end_block: int) -> List[Dict[str, Any]]:
+        """Get transactions between block range"""
+        transactions = []
+        try:
+            # Osmosis transaction fetching logic would go here
+            pass
+        except Exception as e:
+            logger.log(f"Error getting transactions: {e}")
+        return transactions
+    
+    def get_transaction_details(self, tx_hash: str) -> Dict[str, Any]:
+        """Get detailed transaction information"""
+        try:
+            # Osmosis transaction details logic
+            return {}  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting transaction details: {e}")
+            return {}

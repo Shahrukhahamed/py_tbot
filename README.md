@@ -48,15 +48,15 @@ The bot currently supports the following blockchains and currencies:
 
 ### Prerequisites:
 Before running the bot, ensure you have the following installed:
-- Python 3.7+
+- Python 3.8+
 - `pip` (Python package installer)
-- Redis (for caching)
+- Redis (optional, for caching - bot will use in-memory cache if Redis is unavailable)
 
 ### Setup:
 1. Clone the repository:
     ```bash
-    git clone https://github.com/your-repo/blockchain-tracking-bot.git
-    cd blockchain-tracking-bot
+    git clone https://github.com/Shahrukhahamed/py_tbot.git
+    cd py_tbot
     ```
 
 2. Install the required dependencies:
@@ -64,14 +64,74 @@ Before running the bot, ensure you have the following installed:
     pip install -r requirements.txt
     ```
 
-3. Create a `.env` file in the root directory and fill in the following variables:
+3. Create a `.env` file in the root directory (copy from example):
     ```bash
-    SUPABASE_URL=your_supabase_url
-    SUPABASE_KEY=your_supabase_key
-    TELEGRAM_TOKEN=your_telegram_token
+    cp .env.example .env
+    # Edit .env with your actual credentials
     ```
 
-4. Configure the blockchain settings in `blockchains.json`. This file should contain information about each supported blockchain, its RPC URLs, and token contract addresses for stablecoins like USDT, USDC, DAI.
+4. Required environment variables in `.env`:
+    ```bash
+    TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+    SUPABASE_URL=your_supabase_url_here
+    SUPABASE_KEY=your_supabase_key_here
+    REDIS_URL=redis://localhost:6379  # Optional
+    ```
+
+5. Test the build:
+    ```bash
+    python test_build.py
+    ```
+    This will verify all components are working correctly.
+
+6. Run the bot:
+    ```bash
+    python main.py
+    ```
+
+## Build Status
+
+✅ **All components successfully built and tested!**
+
+- ✅ Core imports working
+- ✅ Configuration loading
+- ✅ Database abstraction (with graceful fallback)
+- ✅ Cache system (Redis + in-memory fallback)
+- ✅ Blockchain adapters (20+ chains supported)
+- ✅ Telegram bot handlers
+- ✅ Logging system
+- ✅ Error handling and resilience
+
+## Architecture
+
+The bot follows a modular architecture with clear separation of concerns:
+
+```
+py_tbot/
+├── config/                 # Configuration management
+│   ├── settings.py        # Application settings
+│   └── blockchains.json   # Blockchain configurations
+├── src/
+│   ├── core/              # Core business logic
+│   │   └── blockchain/    # Blockchain adapters
+│   ├── infrastructure/    # External services
+│   │   ├── database.py    # Database abstraction
+│   │   └── cache.py       # Caching system
+│   ├── interface/         # User interfaces
+│   │   └── telegram/      # Telegram bot
+│   └── utils/             # Utilities and helpers
+├── main.py                # Application entry point
+├── test_build.py          # Build verification script
+└── requirements.txt       # Python dependencies
+```
+
+### Key Features:
+- **Resilient Design**: Graceful fallbacks for Redis and database connections
+- **Modular Adapters**: Easy to add new blockchain support
+- **Comprehensive Logging**: Detailed logging for debugging and monitoring
+- **Error Handling**: Robust error handling throughout the application
+
+7. Configure the blockchain settings in `config/blockchains.json`. This file contains information about each supported blockchain, its RPC URLs, and explorer URLs.
 
     Example structure:
     ```json

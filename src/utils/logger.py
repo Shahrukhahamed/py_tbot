@@ -20,7 +20,7 @@ class BotLogger:
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
 
-    def log(self, level: str, message: str):
+    def log(self, message: str, level: str = 'info'):
         """Log message at specified level"""
         if hasattr(self.logger, level):
             getattr(self.logger, level)(message)

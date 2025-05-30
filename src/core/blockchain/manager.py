@@ -3,7 +3,7 @@ from src.infrastructure.database import SupabaseDB
 from src.core.notification.service import NotificationService
 from src.utils.logger import logger
 from src.core.blockchain.adapters import BlockchainAdapters
-from src.config import settings
+from config.settings import settings
 
 
 class BlockchainTracker:

@@ -1,30 +1,46 @@
-from solana.rpc.api import Client
-from config.settings import settings
+from typing import List, Dict, Any
+from .base_chain_adapter import BaseChainAdapter
+from src.utils.logger import logger
 
-# Define the token contract addresses for Solana (USDT, USDC, DAI)
-USDT_CONTRACT = "So11111111111111111111111111111111111111112"  # Solana USDT contract
-USDC_CONTRACT = "Es9vMFrzaBbw9vovNc5r9ABJ7o9VqFQx1bFwF7D7Gz5y"  # Solana USDC contract
-DAI_CONTRACT = "Dai1234567890abcde"  # Placeholder DAI contract
 
-class SolanaAdapter:
-    def __init__(self):
-        self.client = Client(settings.BLOCKCHAINS['Solana']['rpc'])
+class SolanaAdapter(BaseChainAdapter):
+    """Solana blockchain adapter"""
     
-    def get_transactions(self, start_block, end_block):
-        block_range = self.client.get_transactions(start_block, end_block)
-        return [{
-            'hash': tx['signature'],
-            'to': tx['to'],
-            'value': tx['value'],
-            'currency': self._detect_token_currency(tx),
-            'block': tx['block']
-        } for tx in block_range]
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        try:
+            # Solana client would be initialized here
+            # from solana.rpc.api import Client
+            # self.client = Client(self.rpc_url)
+            pass
+        except Exception as e:
+            logger.log(f"Error initializing Solana adapter: {e}")
+            raise
     
-    def _detect_token_currency(self, tx):
-        if tx['to'] == USDT_CONTRACT:
-            return 'USDT'
-        elif tx['to'] == USDC_CONTRACT:
-            return 'USDC'
-        elif tx['to'] == DAI_CONTRACT:
-            return 'DAI'
-        return 'SOL'  # Default is SOL (Solana's native token)
+    def get_current_block(self) -> int:
+        """Get the current slot (Solana's equivalent of block)"""
+        try:
+            # return self.client.get_slot()
+            return 0  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting current slot: {e}")
+            return 0
+    
+    def get_transactions(self, start_block: int, end_block: int) -> List[Dict[str, Any]]:
+        """Get transactions between slot range"""
+        transactions = []
+        try:
+            # Solana transaction fetching logic would go here
+            pass
+        except Exception as e:
+            logger.log(f"Error getting transactions: {e}")
+        return transactions
+    
+    def get_transaction_details(self, tx_hash: str) -> Dict[str, Any]:
+        """Get detailed transaction information"""
+        try:
+            # return self.client.get_transaction(tx_hash)
+            return {}  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting transaction details: {e}")
+            return {}

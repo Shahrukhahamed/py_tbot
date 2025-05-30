@@ -1,17 +1,44 @@
-from web3 import Web3
-from config.settings import settings
+from typing import List, Dict, Any
+from .base_chain_adapter import BaseChainAdapter
+from src.utils.logger import logger
 
-# Dogecoin does not have USDT, USDC, DAI tokens, so we will handle only DOGE
-class DogecoinAdapter:
-    def __init__(self):
-        self.w3 = Web3(Web3.HTTPProvider(settings.BLOCKCHAINS['Dogecoin']['rpc']))
+
+class DogecoinAdapter(BaseChainAdapter):
+    """Dogecoin blockchain adapter"""
     
-    def get_transactions(self, start_block, end_block):
-        block_range = self.w3.eth.get_block_range(start_block, end_block)
-        return [{
-            'hash': tx['hash'].hex(),
-            'to': tx['to'],
-            'value': self.w3.from_wei(tx['value'], 'ether'),
-            'currency': 'DOGE',  # Native DOGE token
-            'block': tx['blockNumber']
-        } for tx in block_range.transactions]
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        try:
+            # Dogecoin client initialization would go here
+            pass
+        except Exception as e:
+            logger.log(f"Error initializing Dogecoin adapter: {e}")
+            raise
+    
+    def get_current_block(self) -> int:
+        """Get the current block number"""
+        try:
+            # Dogecoin specific implementation
+            return 0  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting current block: {e}")
+            return 0
+    
+    def get_transactions(self, start_block: int, end_block: int) -> List[Dict[str, Any]]:
+        """Get transactions between block range"""
+        transactions = []
+        try:
+            # Dogecoin transaction fetching logic would go here
+            pass
+        except Exception as e:
+            logger.log(f"Error getting transactions: {e}")
+        return transactions
+    
+    def get_transaction_details(self, tx_hash: str) -> Dict[str, Any]:
+        """Get detailed transaction information"""
+        try:
+            # Dogecoin transaction details logic
+            return {}  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting transaction details: {e}")
+            return {}

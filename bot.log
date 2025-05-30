@@ -1,0 +1,11 @@
+2025-05-30 04:20:28,292 - CryptoBot - INFO - Error initializing Supabase client: Invalid API key
+2025-05-30 04:21:01,569 - CryptoBot - INFO - Error initializing Ethereum adapter: Failed to connect to Ethereum RPC: https://mainnet.infura.io/v3/your-key
+2025-05-30 04:22:11,957 - CryptoBot - INFO - Redis connection failed, using in-memory cache: Error -2 connecting to redis:6379. Name or service not known.
+2025-05-30 04:22:12,411 - CryptoBot - INFO - Error initializing Supabase client: Invalid API key
+2025-05-30 04:22:12,563 - CryptoBot - INFO - Warning: Failed to connect to Ethereum RPC: https://mainnet.infura.io/v3/your-key
+2025-05-30 04:23:18,198 - CryptoBot - INFO - Redis connection failed, using in-memory cache: Error -2 connecting to redis:6379. Name or service not known.
+2025-05-30 04:23:18,808 - CryptoBot - INFO - Warning: Failed to connect to Ethereum RPC: https://mainnet.infura.io/v3/your-key
+2025-05-30 04:24:55,367 - CryptoBot - INFO - Redis connection failed, using in-memory cache: Error -2 connecting to redis:6379. Name or service not known.
+2025-05-30 04:24:55,882 - CryptoBot - INFO - Warning: Failed to connect to Ethereum RPC: https://mainnet.infura.io/v3/your-key
+2025-05-30 04:24:56,020 - CryptoBot - INFO - Test log message
+2025-05-30 04:24:56,154 - CryptoBot - INFO - Warning: Failed to connect to Ethereum RPC: https://mainnet.infura.io/v3/your-key

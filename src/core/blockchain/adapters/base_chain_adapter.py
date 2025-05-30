@@ -1,31 +1,49 @@
-from web3 import Web3
-from config.settings import settings
+from abc import ABC, abstractmethod
+from typing import List, Dict, Any
 
-# Define token contract addresses for Base chain
-BASE_USDT_CONTRACT = "0x0000000000000000000000000000000000000000"  # Replace with actual
-BASE_USDC_CONTRACT = "0x0000000000000000000000000000000000000000"
-BASE_DAI_CONTRACT = "0x0000000000000000000000000000000000000000"
 
-class BaseAdapter:
-    def __init__(self):
-        self.w3 = Web3(Web3.HTTPProvider(settings.BLOCKCHAINS['Base']['rpc']))
+class BaseChainAdapter(ABC):
+    """Base class for all blockchain adapters"""
     
-    def get_transactions(self, start_block, end_block):
-        block_range = self.w3.eth.get_block_range(start_block, end_block)
-        return [{
-            'hash': tx['hash'].hex(),
-            'to': tx['to'],
-            'value': self.w3.from_wei(tx['value'], 'ether'),
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.rpc_url = config.get('rpc_url')
+        self.native_token = config.get('native_token')
+        self.tokens = config.get('tokens', {})
+    
+    @abstractmethod
+    def get_current_block(self) -> int:
+        """Get the current block number"""
+        pass
+    
+    @abstractmethod
+    def get_transactions(self, start_block: int, end_block: int) -> List[Dict[str, Any]]:
+        """Get transactions between block range"""
+        pass
+    
+    @abstractmethod
+    def get_transaction_details(self, tx_hash: str) -> Dict[str, Any]:
+        """Get detailed transaction information"""
+        pass
+    
+    def _detect_token_currency(self, tx: Dict[str, Any]) -> str:
+        """Detect the currency/token type from transaction"""
+        to_addr = (tx.get('to') or '').lower()
+        
+        for token_name, contract_addr in self.tokens.items():
+            if to_addr == contract_addr.lower():
+                return token_name
+        
+        return self.native_token
+    
+    def _format_transaction(self, tx: Dict[str, Any]) -> Dict[str, Any]:
+        """Format transaction data to standard format"""
+        return {
+            'hash': tx.get('hash', ''),
+            'to': tx.get('to', ''),
+            'from': tx.get('from', ''),
+            'value': tx.get('value', 0),
             'currency': self._detect_token_currency(tx),
-            'block': tx['blockNumber']
-        } for tx in block_range.transactions]
-    
-    def _detect_token_currency(self, tx):
-        to_addr = (tx['to'] or '').lower()
-        if to_addr == BASE_USDT_CONTRACT.lower():
-            return 'USDT'
-        elif to_addr == BASE_USDC_CONTRACT.lower():
-            return 'USDC'
-        elif to_addr == BASE_DAI_CONTRACT.lower():
-            return 'DAI'
-        return 'ETH'  # Base native token is ETH
+            'block': tx.get('blockNumber', 0),
+            'timestamp': tx.get('timestamp', 0)
+        }

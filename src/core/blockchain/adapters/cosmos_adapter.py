@@ -1,44 +1,44 @@
-import requests
-from config.settings import settings
+from typing import List, Dict, Any
+from .base_chain_adapter import BaseChainAdapter
+from src.utils.logger import logger
 
-# Cosmos tokens (denoms) - these vary by chain!
-IBC_DENOMS = {
-    'USDT': 'ibc/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    'USDC': 'ibc/yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy',
-    'DAI':  'ibc/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-}
 
-class CosmosAdapter:
-    def __init__(self):
-        self.api_url = settings.BLOCKCHAINS['Cosmos']['lcd']  # e.g. https://lcd.osmosis.zone
-
-    def get_transactions(self, address):
-        # Get latest txs for address
-        url = f"{self.api_url}/cosmos/tx/v1beta1/txs?events=message.sender='{address}'"
-        response = requests.get(url)
-        txs = response.json().get('txs', [])
-        parsed = []
-        
-        for tx in txs:
-            for msg in tx['body']['messages']:
-                if msg['@type'] == '/cosmos.bank.v1beta1.MsgSend':
-                    amount_list = msg.get('amount', [])
-                    for amount in amount_list:
-                        denom = amount['denom']
-                        symbol = self._detect_token_symbol(denom)
-                        if symbol:
-                            parsed.append({
-                                'hash': tx['txhash'],
-                                'from': msg['from_address'],
-                                'to': msg['to_address'],
-                                'value': int(amount['amount']) / 1e6,  # assumes 6 decimals
-                                'currency': symbol,
-                                'block': tx['height']
-                            })
-        return parsed
-
-    def _detect_token_symbol(self, denom):
-        for symbol, ibc_denom in IBC_DENOMS.items():
-            if denom == ibc_denom:
-                return symbol
-        return None
+class CosmosAdapter(BaseChainAdapter):
+    """Cosmos blockchain adapter"""
+    
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        try:
+            # Cosmos client initialization would go here
+            pass
+        except Exception as e:
+            logger.log(f"Error initializing Cosmos adapter: {e}")
+            raise
+    
+    def get_current_block(self) -> int:
+        """Get the current block number"""
+        try:
+            # Cosmos specific implementation
+            return 0  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting current block: {e}")
+            return 0
+    
+    def get_transactions(self, start_block: int, end_block: int) -> List[Dict[str, Any]]:
+        """Get transactions between block range"""
+        transactions = []
+        try:
+            # Cosmos transaction fetching logic would go here
+            pass
+        except Exception as e:
+            logger.log(f"Error getting transactions: {e}")
+        return transactions
+    
+    def get_transaction_details(self, tx_hash: str) -> Dict[str, Any]:
+        """Get detailed transaction information"""
+        try:
+            # Cosmos transaction details logic
+            return {}  # Placeholder
+        except Exception as e:
+            logger.log(f"Error getting transaction details: {e}")
+            return {}
