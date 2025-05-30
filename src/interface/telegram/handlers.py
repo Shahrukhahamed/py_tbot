@@ -96,25 +96,51 @@ async def handle_add_blockchain(update: Update, context: ContextTypes.DEFAULT_TY
 async def handle_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     help_text = """
 📚 *Available Commands:*
+
+**Basic Commands:**
 /start - Initialize the bot
+/help - Show this help message
+/status - Show bot status
+
+**Wallet Management:**
 /add_wallet <address> <blockchain>
 /remove_wallet <address>
 /pause_tracking
 /resume_tracking
 /start_tracking
 /stop_tracking
+
+**Currency Management:**
 /add_currency <symbol> <name>
 /remove_currency <symbol>
 /update_rate <symbol> <rate>
-/status
+
+**Blockchain Management:**
 /add_blockchain <name> <rpc> <explorer> <currency>
 /remove_blockchain <name>
+/set_rpc_url <blockchain> <url>
+/fallback_rpc <blockchain> <fallback_url>
+
+**🚀 Custom Blockchain Integration:**
+/add_custom_evm_chain <name> <rpc_url> <chain_id> <symbol> [explorer_url]
+/add_custom_web3_chain <name> <chain_type> <rpc_url> <symbol> <decimals> [explorer_url]
+/remove_custom_chain <chain_name>
+/list_custom_chains - List all custom blockchains
+/test_custom_chain <chain_name> - Test custom blockchain connection
+/get_evm_template - Get EVM chain configuration template
+/get_web3_template [chain_type] - Get Web3 chain configuration template
+
+**System Configuration:**
 /set_message_format <template>
 /clear_cache
 /set_group_id <id>
 /set_admin_id <id>
-/set_rpc_url <blockchain> <url>
-/fallback_rpc <blockchain> <fallback_url>
+/set_media <media_url>
+
+**Supported Chain Types for Web3:**
+- substrate (Polkadot/Kusama ecosystem)
+- cosmos (Cosmos ecosystem)
+- custom (Generic Web3 chains)
     """
     await update.message.reply_text(help_text, parse_mode="Markdown")
 
@@ -295,3 +321,254 @@ async def handle_set_media(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"🖼️ Notification media set", parse_mode="Markdown")
     except Exception as e:
         await update.message.reply_text(f"❌ Error: {str(e)}")
+
+
+# Custom Blockchain Integration Handlers
+
+@admin_required
+async def add_custom_evm_chain(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Add a custom EVM-compatible blockchain"""
+    try:
+        if len(context.args) < 4:
+            await update.message.reply_text(
+                "Usage: /add_custom_evm_chain <name> <rpc_url> <chain_id> <symbol> [explorer_url]\n"
+                "Example: /add_custom_evm_chain \"My Chain\" https://rpc.mychain.com 12345 MYC https://explorer.mychain.com"
+            )
+            return
+        
+        from src.core.blockchain.adapters import BlockchainAdapters
+        adapters = BlockchainAdapters()
+        
+        chain_name = context.args[0]
+        rpc_url = context.args[1]
+        chain_id = int(context.args[2])
+        symbol = context.args[3]
+        explorer_url = context.args[4] if len(context.args) > 4 else ""
+        
+        config = {
+            "name": chain_name,
+            "rpc_url": rpc_url,
+            "chain_id": chain_id,
+            "symbol": symbol,
+            "explorer_url": explorer_url,
+            "gas_price_multiplier": 1.0,
+            "block_time": 15,
+            "confirmations": 12,
+            "token_contracts": {},
+            "enabled": True
+        }
+        
+        success = adapters.add_custom_evm_chain(chain_name, config)
+        
+        if success:
+            await update.message.reply_text(
+                f"✅ Custom EVM chain added successfully!\n"
+                f"🔗 Name: {chain_name}\n"
+                f"🌐 RPC: {rpc_url}\n"
+                f"🆔 Chain ID: {chain_id}\n"
+                f"💰 Symbol: {symbol}"
+            )
+        else:
+            await update.message.reply_text("❌ Failed to add custom EVM chain")
+        
+    except Exception as e:
+        logger.log(f"Error adding custom EVM chain: {e}")
+        await update.message.reply_text(f"❌ Error adding custom EVM chain: {str(e)}")
+
+
+@admin_required
+async def add_custom_web3_chain(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Add a custom Web3-compatible blockchain"""
+    try:
+        if len(context.args) < 5:
+            await update.message.reply_text(
+                "Usage: /add_custom_web3_chain <name> <chain_type> <rpc_url> <symbol> <decimals> [explorer_url]\n"
+                "Chain types: substrate, cosmos, custom\n"
+                "Example: /add_custom_web3_chain \"My Substrate\" substrate wss://rpc.mychain.com DOT 10 https://explorer.mychain.com"
+            )
+            return
+        
+        from src.core.blockchain.adapters import BlockchainAdapters
+        adapters = BlockchainAdapters()
+        
+        chain_name = context.args[0]
+        chain_type = context.args[1]
+        rpc_url = context.args[2]
+        symbol = context.args[3]
+        decimals = int(context.args[4])
+        explorer_url = context.args[5] if len(context.args) > 5 else ""
+        
+        config = {
+            "name": chain_name,
+            "chain_type": chain_type,
+            "rpc_url": rpc_url,
+            "symbol": symbol,
+            "decimals": decimals,
+            "explorer_url": explorer_url,
+            "block_time": 6,
+            "address_format": r'^[a-zA-Z0-9]+$',
+            "rpc_methods": {},
+            "enabled": True
+        }
+        
+        success = adapters.add_custom_web3_chain(chain_name, config)
+        
+        if success:
+            await update.message.reply_text(
+                f"✅ Custom Web3 chain added successfully!\n"
+                f"🔗 Name: {chain_name}\n"
+                f"🔧 Type: {chain_type}\n"
+                f"🌐 RPC: {rpc_url}\n"
+                f"💰 Symbol: {symbol}\n"
+                f"🔢 Decimals: {decimals}"
+            )
+        else:
+            await update.message.reply_text("❌ Failed to add custom Web3 chain")
+        
+    except Exception as e:
+        logger.log(f"Error adding custom Web3 chain: {e}")
+        await update.message.reply_text(f"❌ Error adding custom Web3 chain: {str(e)}")
+
+
+@admin_required
+async def remove_custom_chain(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Remove a custom blockchain"""
+    try:
+        if not context.args:
+            await update.message.reply_text("Usage: /remove_custom_chain <chain_name>")
+            return
+        
+        from src.core.blockchain.adapters import BlockchainAdapters
+        adapters = BlockchainAdapters()
+        
+        chain_name = context.args[0]
+        success = adapters.remove_custom_chain(chain_name)
+        
+        if success:
+            await update.message.reply_text(f"✅ Custom chain '{chain_name}' removed successfully!")
+        else:
+            await update.message.reply_text(f"❌ Failed to remove custom chain '{chain_name}'")
+        
+    except Exception as e:
+        logger.log(f"Error removing custom chain: {e}")
+        await update.message.reply_text(f"❌ Error removing custom chain: {str(e)}")
+
+
+@admin_required
+async def list_custom_chains(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """List all custom blockchains"""
+    try:
+        from src.core.blockchain.adapters import BlockchainAdapters
+        adapters = BlockchainAdapters()
+        
+        stats = adapters.get_custom_chain_stats()
+        
+        message = f"📊 Custom Blockchain Statistics:\n\n"
+        message += f"📈 Total Custom Chains: {stats.get('total_chains', 0)}\n"
+        message += f"✅ Enabled Chains: {stats.get('enabled_chains', 0)}\n"
+        message += f"🔗 EVM Chains: {stats.get('evm_chains', 0)}\n"
+        message += f"🌐 Web3 Chains: {stats.get('web3_chains', 0)}\n\n"
+        
+        chains = stats.get('chains', {})
+        if chains:
+            message += "🔗 Custom Chains:\n"
+            for chain_name, info in chains.items():
+                status = "🟢" if info.get('connected', False) else "🔴"
+                chain_type = info.get('type', 'unknown')
+                current_block = info.get('current_block', 0)
+                message += f"{status} {chain_name} ({chain_type}) - Block: {current_block}\n"
+        else:
+            message += "No custom chains configured."
+        
+        await update.message.reply_text(message)
+        
+    except Exception as e:
+        logger.log(f"Error listing custom chains: {e}")
+        await update.message.reply_text(f"❌ Error listing custom chains: {str(e)}")
+
+
+@admin_required
+async def test_custom_chain(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Test connection to a custom blockchain"""
+    try:
+        if not context.args:
+            await update.message.reply_text("Usage: /test_custom_chain <chain_name>")
+            return
+        
+        from src.core.blockchain.adapters import BlockchainAdapters
+        adapters = BlockchainAdapters()
+        
+        chain_name = context.args[0]
+        result = adapters.test_custom_chain(chain_name)
+        
+        if result.get('success', False):
+            network_info = result.get('network_info', {})
+            current_block = result.get('current_block', 0)
+            
+            message = f"✅ Custom chain '{chain_name}' test successful!\n\n"
+            message += f"📊 Current Block: {current_block}\n"
+            
+            if 'connected' in network_info:
+                status = "🟢 Connected" if network_info['connected'] else "🔴 Disconnected"
+                message += f"🔗 Status: {status}\n"
+            
+            if 'gas_price' in network_info:
+                message += f"⛽ Gas Price: {network_info['gas_price']}\n"
+            
+            if 'chain_id' in network_info:
+                message += f"🆔 Chain ID: {network_info['chain_id']}\n"
+        else:
+            message = f"❌ Custom chain '{chain_name}' test failed!\n"
+            message += f"Error: {result.get('error', 'Unknown error')}"
+        
+        await update.message.reply_text(message)
+        
+    except Exception as e:
+        logger.log(f"Error testing custom chain: {e}")
+        await update.message.reply_text(f"❌ Error testing custom chain: {str(e)}")
+
+
+@admin_required
+async def get_evm_template(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Get EVM chain configuration template"""
+    try:
+        from src.core.blockchain.adapters import BlockchainAdapters
+        adapters = BlockchainAdapters()
+        
+        template = adapters.create_evm_template()
+        
+        if template:
+            import json
+            message = "📋 EVM Chain Configuration Template:\n\n"
+            message += f"```json\n{json.dumps(template, indent=2)}\n```"
+            await update.message.reply_text(message, parse_mode='Markdown')
+        else:
+            await update.message.reply_text("❌ Failed to get EVM template")
+        
+    except Exception as e:
+        logger.log(f"Error getting EVM template: {e}")
+        await update.message.reply_text(f"❌ Error getting EVM template: {str(e)}")
+
+
+@admin_required
+async def get_web3_template(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Get Web3 chain configuration template"""
+    try:
+        chain_type = context.args[0] if context.args else "substrate"
+        
+        from src.core.blockchain.adapters import BlockchainAdapters
+        adapters = BlockchainAdapters()
+        
+        template = adapters.create_web3_template(chain_type)
+        
+        if template:
+            import json
+            message = f"📋 Web3 Chain Configuration Template ({chain_type}):\n\n"
+            message += f"```json\n{json.dumps(template, indent=2)}\n```"
+            await update.message.reply_text(message, parse_mode='Markdown')
+        else:
+            await update.message.reply_text("❌ Failed to get Web3 template")
+        
+    except Exception as e:
+        logger.log(f"Error getting Web3 template: {e}")
+        await update.message.reply_text(f"❌ Error getting Web3 template: {str(e)}")

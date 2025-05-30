@@ -1,0 +1,52 @@
+{
+  "example_evm_chain": {
+    "name": "Example EVM Chain",
+    "type": "evm",
+    "rpc_url": "https://rpc.example-evm-chain.com",
+    "chain_id": 12345,
+    "symbol": "EXAMPLE",
+    "explorer_url": "https://explorer.example-evm-chain.com",
+    "gas_price_multiplier": 1.2,
+    "block_time": 3,
+    "confirmations": 6,
+    "token_contracts": {
+      "USDT": "0x...",
+      "USDC": "0x..."
+    },
+    "enabled": false
+  },
+  "example_substrate_chain": {
+    "name": "Example Substrate Chain",
+    "type": "web3",
+    "chain_type": "substrate",
+    "rpc_url": "wss://rpc.example-substrate.com",
+    "symbol": "SUB",
+    "explorer_url": "https://explorer.example-substrate.com",
+    "decimals": 12,
+    "block_time": 6,
+    "address_format": "^[1-9A-HJ-NP-Za-km-z]{47,48}$",
+    "rpc_methods": {
+      "get_block_number": "chain_getHeader",
+      "get_block": "chain_getBlock",
+      "get_balance": "system_account"
+    },
+    "enabled": false
+  },
+  "example_cosmos_chain": {
+    "name": "Example Cosmos Chain",
+    "type": "web3",
+    "chain_type": "cosmos",
+    "rpc_url": "https://rpc.example-cosmos.com",
+    "symbol": "ATOM",
+    "explorer_url": "https://explorer.example-cosmos.com",
+    "decimals": 6,
+    "block_time": 7,
+    "address_format": "^cosmos[0-9a-z]{39}$",
+    "rpc_methods": {
+      "get_block_number": "status",
+      "get_block": "block",
+      "get_balance": "bank/balances"
+    },
+    "enabled": false
+  }
+}

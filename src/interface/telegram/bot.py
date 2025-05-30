@@ -47,6 +47,14 @@ class TelegramBot:
             'set_rpc_url': handle_set_rpc_url,
             'fallback_rpc': handle_fallback_rpc,
             'set_media': handle_set_media,
+            # Custom Blockchain Integration Commands
+            'add_custom_evm_chain': add_custom_evm_chain,
+            'add_custom_web3_chain': add_custom_web3_chain,
+            'remove_custom_chain': remove_custom_chain,
+            'list_custom_chains': list_custom_chains,
+            'test_custom_chain': test_custom_chain,
+            'get_evm_template': get_evm_template,
+            'get_web3_template': get_web3_template,
         }
 
         for command, handler in command_handlers.items():

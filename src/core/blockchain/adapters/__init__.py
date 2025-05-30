@@ -18,12 +18,15 @@ from .pi_network_adapter import PiNetworkAdapter
 from .cosmos_adapter import CosmosAdapter
 from .osmosis_adapter import OsmosisAdapter
 from .eos_adapter import EOSAdapter
+from .custom_evm_adapter import CustomEVMAdapter
+from .custom_web3_adapter import CustomWeb3Adapter
 
 from config.settings import settings
+from src.utils.logger import logger
 
 
 class BlockchainAdapters:
-    """Factory class for blockchain adapters"""
+    """Factory class for blockchain adapters with custom integration support"""
     
     _adapters = {
         'Ethereum': EthereumAdapter,
@@ -47,6 +50,11 @@ class BlockchainAdapters:
         'EOS': EOSAdapter,
     }
     
+    def __init__(self):
+        """Initialize with custom blockchain integration support"""
+        self.custom_adapters = {}
+        self._load_custom_integrations()
+    
     _explorer_urls = {
         'Ethereum': 'https://etherscan.io/tx/',
         'Binance Smart Chain': 'https://bscscan.com/tx/',
@@ -69,35 +77,125 @@ class BlockchainAdapters:
         'EOS': 'https://bloks.io/transaction/',
     }
     
-    @classmethod
-    def get_adapter(cls, chain_name: str):
+    def _load_custom_integrations(self):
+        """Load custom blockchain integrations"""
+        try:
+            from ..custom_integration import custom_blockchain_manager
+            self.custom_manager = custom_blockchain_manager
+            self.custom_adapters = custom_blockchain_manager.get_all_custom_chains()
+            logger.log(f"Loaded {len(self.custom_adapters)} custom blockchain integrations")
+        except Exception as e:
+            logger.log(f"Error loading custom integrations: {e}")
+            self.custom_manager = None
+    
+    def get_adapter(self, chain_name: str):
         """Get adapter instance for a blockchain"""
-        if chain_name not in cls._adapters:
+        # Check custom adapters first
+        if hasattr(self, 'custom_adapters') and chain_name in self.custom_adapters:
+            return self.custom_adapters[chain_name]
+        
+        # Check built-in adapters
+        if chain_name not in self._adapters:
             raise ValueError(f"Unsupported blockchain: {chain_name}")
         
-        adapter_class = cls._adapters[chain_name]
-        blockchain_config = settings.BLOCKCHAINS['blockchains'].get(chain_name)
+        adapter_class = self._adapters[chain_name]
+        blockchain_config = settings.BLOCKCHAINS.get('blockchains', {}).get(chain_name)
         
         if not blockchain_config:
-            raise ValueError(f"No configuration found for blockchain: {chain_name}")
+            # Try to create adapter without config for basic functionality
+            try:
+                return adapter_class()
+            except Exception as e:
+                logger.log(f"Warning: Failed to initialize {chain_name} adapter: {e}")
+                return None
         
         return adapter_class(blockchain_config)
     
-    @classmethod
-    def get_explorer_url(cls, chain_name: str, url_type: str = 'tx', identifier: str = '') -> str:
+    def get_explorer_url(self, chain_name: str, url_type: str = 'tx', identifier: str = '') -> str:
         """Get explorer URL for a blockchain transaction or address"""
-        base_url = cls._explorer_urls.get(chain_name, '')
+        # Check custom adapters first
+        if hasattr(self, 'custom_adapters') and chain_name in self.custom_adapters:
+            adapter = self.custom_adapters[chain_name]
+            if hasattr(adapter, 'get_explorer_url'):
+                return adapter.get_explorer_url(url_type, identifier)
+        
+        # Check built-in explorer URLs
+        base_url = self._explorer_urls.get(chain_name, '')
         if not base_url:
             return ''
         
         if url_type == 'tx':
-            return f"{base_url}/tx/{identifier}"
+            return f"{base_url}{identifier}"
         elif url_type == 'address':
-            return f"{base_url}/address/{identifier}"
+            return base_url.replace('/tx/', '/address/') + identifier
+        elif url_type == 'block':
+            return base_url.replace('/tx/', '/block/') + identifier
         else:
             return base_url
     
-    @classmethod
-    def get_supported_chains(cls) -> list:
-        """Get list of supported blockchain names"""
-        return list(cls._adapters.keys())
+    def get_supported_chains(self) -> list:
+        """Get list of supported blockchain names including custom chains"""
+        chains = list(self._adapters.keys())
+        if hasattr(self, 'custom_adapters'):
+            chains.extend(self.custom_adapters.keys())
+        return chains
+    
+    def add_custom_evm_chain(self, chain_name: str, config: dict) -> bool:
+        """Add a custom EVM-compatible blockchain"""
+        if not hasattr(self, 'custom_manager') or not self.custom_manager:
+            return False
+        
+        config['type'] = 'evm'
+        success = self.custom_manager.add_custom_chain(chain_name, config)
+        if success:
+            self.custom_adapters = self.custom_manager.get_all_custom_chains()
+        return success
+    
+    def add_custom_web3_chain(self, chain_name: str, config: dict) -> bool:
+        """Add a custom Web3-compatible blockchain"""
+        if not hasattr(self, 'custom_manager') or not self.custom_manager:
+            return False
+        
+        config['type'] = 'web3'
+        success = self.custom_manager.add_custom_chain(chain_name, config)
+        if success:
+            self.custom_adapters = self.custom_manager.get_all_custom_chains()
+        return success
+    
+    def remove_custom_chain(self, chain_name: str) -> bool:
+        """Remove a custom blockchain"""
+        if not hasattr(self, 'custom_manager') or not self.custom_manager:
+            return False
+        
+        success = self.custom_manager.remove_custom_chain(chain_name)
+        if success:
+            self.custom_adapters = self.custom_manager.get_all_custom_chains()
+        return success
+    
+    def test_custom_chain(self, chain_name: str) -> dict:
+        """Test connection to a custom blockchain"""
+        if not hasattr(self, 'custom_manager') or not self.custom_manager:
+            return {'success': False, 'error': 'Custom integration manager not available'}
+        
+        return self.custom_manager.test_chain_connection(chain_name)
+    
+    def get_custom_chain_stats(self) -> dict:
+        """Get statistics for custom blockchains"""
+        if not hasattr(self, 'custom_manager') or not self.custom_manager:
+            return {'total_chains': 0, 'enabled_chains': 0}
+        
+        return self.custom_manager.get_chain_stats()
+    
+    def create_evm_template(self) -> dict:
+        """Create a template for EVM chain configuration"""
+        if not hasattr(self, 'custom_manager') or not self.custom_manager:
+            return {}
+        
+        return self.custom_manager.create_evm_chain_template()
+    
+    def create_web3_template(self, chain_type: str = "substrate") -> dict:
+        """Create a template for Web3 chain configuration"""
+        if not hasattr(self, 'custom_manager') or not self.custom_manager:
+            return {}
+        
+        return self.custom_manager.create_web3_chain_template(chain_type)
