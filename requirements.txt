@@ -10,5 +10,5 @@ redis==5.0.1
 pytz==2024.1
 python-socketio==5.11.2
 eth-account==0.11.0
-trx-utils==1.0.4
+trx-utils
 py-algorand-sdk==2.4.0
